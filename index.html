@@ -1,0 +1,217 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+
+    <title>Witches</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Eater&display=swap"
+      rel="stylesheet"
+    />
+
+    <style type="text/css">
+      body {
+        background: black;
+        font-family: "Eater", serif;
+        overflow: hidden;
+      }
+
+      .moon {
+        border-radius: 50%;
+        height: 15vh;
+        width: 15vh;
+        background: white;
+        position: absolute;
+        top: 10vh;
+        right: 10vw;
+      }
+
+      .moon::after {
+        content: "";
+        background: black;
+        border-radius: 50%;
+        transform: translateX(-2vw);
+        display: block;
+        height: 100%;
+        width: 100%;
+      }
+
+      .flyzone {
+        height: 100vh;
+        width: 100vw;
+        transform: perspective(50vw);
+      }
+
+      .witchWrapper {
+        position: absolute;
+        z-index: 100;
+        opacity: 1;
+        transform: translateX(-10vw) scale(-1);
+      }
+
+      .witchWrapper.flyLeft {
+        transform: translateX(100vw) scale(1);
+      }
+
+      .witch {
+        height: 100px;
+        width: 100px;
+        background: url(./clear_witchy.png);
+        background-repeat: no-repeat;
+        background-size: contain;
+      }
+
+      .star {
+        height: 1px;
+        width: 1px;
+        background-color: white;
+        position: absolute;
+        z-index: -1;
+      }
+
+      .text {
+        position: absolute;
+        z-index: 2;
+        width: 100%;
+        bottom: 0;
+        text-align: center;
+        color: red;
+        font-size: 128px;
+      }
+    </style>
+
+    <script>
+      const render = () => {
+        const NUM_WITCHES = 20;
+        const MAX_STARS = 1000;
+
+        const MAX_DELAY = 1300;
+        const FLY_TIME = 5000 + MAX_DELAY;
+
+        const numStars = Math.floor(Math.random() * MAX_STARS);
+
+        let numWitches = 1;
+
+        const createWitches = (num) => {
+          const flyZone = document.body.querySelector(".flyzone");
+          flyZone.classList.remove("flying");
+          flyZone.innerHTML = "";
+
+          for (let i = 0; i < num; i++) {
+            const witch = document.createElement("div");
+            witch.classList.add("witch");
+            const witchWrapper = document.createElement("div");
+            witchWrapper.classList.add("witchWrapper");
+
+            witchWrapper.appendChild(witch);
+
+            const flyLeft = Math.random() > 0.5 ? true : false;
+
+            if (flyLeft) {
+              witch.classList.add("flyLeft");
+            }
+            witchWrapper.style.top = 10 + Math.random() * 80 + "vh";
+
+            flyZone.appendChild(witchWrapper);
+
+            const start =
+              (flyLeft ? "translateX(100vw) " : "translateX(-10vw) ") +
+              (flyLeft ? "scaleX(1) " : "scaleX(-1) ") +
+              `scale(${Math.random() * 4})`;
+
+            const end =
+              (flyLeft ? "translateX(-10vw) " : "translateX(100vw) ") +
+              (flyLeft ? "scaleX(1) " : "scaleX(-1) ") +
+              `scale(${Math.random() * 4})`;
+
+            console.log(start, end);
+
+            witchWrapper.animate(
+              [
+                {
+                  transform: start,
+                },
+                {
+                  transform: end,
+                },
+              ],
+              {
+                duration: FLY_TIME / 2 + Math.random() * (FLY_TIME / 2),
+                delay: Math.floor(Math.random() * MAX_DELAY),
+                iterations: 1,
+              }
+            );
+
+            witch.animate(
+              [
+                {
+                  transform: "translateY(0vh)",
+                },
+                {
+                  transform: "translateY(-1vh)",
+                },
+                {
+                  transform: "translateY(0vh)",
+                },
+                {
+                  transform: "translateY(1vh)",
+                },
+                {
+                  transform: "translateY(0vh)",
+                },
+              ],
+              {
+                duration: 1300,
+                delay: Math.floor(Math.random() * MAX_DELAY),
+                iterations: Infinity,
+                easing: "ease-in-out",
+              }
+            );
+          }
+
+          setTimeout(() => flyZone.classList.add("flying"), 100);
+        };
+
+        const fly = (num) => {
+          createWitches(num);
+        };
+
+        const createStars = (num) => {
+          for (let i = 0; i < num; i++) {
+            const star = document.createElement("div");
+            star.classList.add("star");
+            star.style.left = Math.random() * 100 + "vw";
+            star.style.top = Math.random() * 100 + "vh";
+            document.body.appendChild(star);
+          }
+        };
+
+        createStars(numStars);
+        fly(numWitches);
+        document.querySelector(".text").innerHTML = numWitches;
+
+        setInterval(() => {
+          numWitches++;
+
+          fly(numWitches);
+          document.querySelector(".text").innerHTML = numWitches;
+          if (numWitches === NUM_WITCHES) {
+            document.querySelector(
+              ".text"
+            ).innerHTML = `${numWitches} is plenty`;
+            numWitches = 0;
+          }
+        }, FLY_TIME);
+      };
+
+      document.addEventListener("DOMContentLoaded", render);
+    </script>
+  </head>
+  <body>
+    <div class="moon"></div>
+    <div class="flyzone"></div>
+    <div class="text"></div>
+  </body>
+</html>
